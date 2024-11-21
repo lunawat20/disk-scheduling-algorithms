@@ -1,0 +1,56 @@
+LOW = 0
+HIGH = 199
+START = 53
+
+def print_seq_performance(sequence):
+    last, total = START, 0
+    print(START, end="")
+    for req in sequence:
+        print(f" -> {req}", end="")
+        total += abs(last - req)
+        last = req
+    print(f"\nPerformance: {total}")
+
+def fcfs(requests):
+    print("\n----------------\nFCFS:")
+    print_seq_performance(requests)
+    print("----------------")
+
+def sstf(requests):
+    sequence = []
+    current = START
+    while requests:
+        closest = min(requests, key=lambda r: abs(r - current))
+        sequence.append(closest)
+        requests.remove(closest)
+        current = closest
+    print("\n----------------\nSSTF:")
+    print_seq_performance(sequence)
+    print("----------------")
+
+def scan(requests):
+    requests.extend([LOW, HIGH, START])
+    requests.sort()
+    idx = requests.index(START)
+    sequence = requests[:idx + 1] + requests[idx + 1:]
+    print("\n----------------\nSCAN:")
+    print_seq_performance(sequence)
+    print("----------------")
+
+def main():
+    num_requests = int(input("Enter the number of disk access requests: "))
+    requests = [int(input()) for _ in range(num_requests)]
+    print("\nSelect the policy:\n1. FCFS\n2. SSTF\n3. SCAN")
+    policy = int(input())
+
+    if policy == 1:
+        fcfs(requests)
+    elif policy == 2:
+        sstf(requests)
+    elif policy == 3:
+        scan(requests)
+    else:
+        print("Invalid policy!")
+
+if __name__ == "__main__":
+    main()
