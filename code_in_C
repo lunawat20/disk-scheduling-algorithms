@@ -1,0 +1,257 @@
+#include <stdio.h>  // for printf and scanf
+#include <stdlib.h> // for malloc and qsort
+
+#define LOW 0
+#define HIGH 199
+#define START 53
+
+// Compare function for qsort
+int cmpfunc(const void *a, const void *b)
+{
+    return (*(int *)a - *(int *)b);
+}
+
+// Prints the sequence and the performance metric
+void printSeqNPerformance(int *request, int numRequest)
+{
+    int i, last, acc = 0;
+    last = START;
+    printf("\n");
+    printf("%d", START);
+    for (i = 0; i < numRequest; i++)
+    {
+        printf(" -> %d", request[i]);
+        acc += abs(last - request[i]);
+        last = request[i];
+    }
+    printf("\nPerformance : %d\n", acc);
+    return;
+}
+
+// Access the disk location in FCFS
+void accessFCFS(int *request, int numRequest)
+{
+    printf("\n----------------\n");
+    printf("FCFS :");
+    printSeqNPerformance(request, numRequest);
+    printf("----------------\n");
+    return;
+}
+
+// Access the disk location in SSTF
+void accessSSTF(int *request, int numRequest)
+{
+    int i, j, current = START, closest, closestIdx;
+    int *newRequest = malloc(numRequest * sizeof(int));
+    int visited[numRequest];
+    for (i = 0; i < numRequest; i++)
+        visited[i] = 0;
+
+    for (i = 0; i < numRequest; i++)
+    {
+        closest = HIGH + 1;
+        closestIdx = -1;
+        for (j = 0; j < numRequest; j++)
+        {
+            if (!visited[j] && abs(current - request[j]) < closest)
+            {
+                closest = abs(current - request[j]);
+                closestIdx = j;
+            }
+        }
+        newRequest[i] = request[closestIdx];
+        visited[closestIdx] = 1;
+        current = request[closestIdx];
+    }
+
+    printf("\n----------------\n");
+    printf("SSTF :");
+    printSeqNPerformance(newRequest, numRequest);
+    printf("----------------\n");
+    free(newRequest);
+    return;
+}
+
+// Access the disk location in SCAN
+void accessSCAN(int *request, int numRequest)
+{
+    int i, newCnt = 0, index = 0;
+    int *newRequest = malloc((numRequest + 1) * sizeof(int));
+    int boundary = HIGH;
+
+    qsort(request, numRequest, sizeof(int), cmpfunc);
+
+    for (i = 0; i < numRequest; i++)
+    {
+        if (request[i] >= START)
+        {
+            index = i;
+            break;
+        }
+    }
+
+    for (i = index; i < numRequest; i++)
+        newRequest[newCnt++] = request[i];
+
+    newRequest[newCnt++] = boundary;
+
+    for (i = index - 1; i >= 0; i--)
+        newRequest[newCnt++] = request[i];
+
+    printf("\n----------------\n");
+    printf("SCAN :");
+    printSeqNPerformance(newRequest, newCnt);
+    printf("----------------\n");
+    free(newRequest);
+    return;
+}
+
+// Access the disk location in CSCAN
+void accessCSCAN(int *request, int numRequest)
+{
+    int i, newCnt = 0, index = 0;
+    int *newRequest = malloc((numRequest + 2) * sizeof(int));
+
+    qsort(request, numRequest, sizeof(int), cmpfunc);
+
+    for (i = 0; i < numRequest; i++)
+    {
+        if (request[i] >= START)
+        {
+            index = i;
+            break;
+        }
+    }
+
+    for (i = index; i < numRequest; i++)
+        newRequest[newCnt++] = request[i];
+
+    newRequest[newCnt++] = HIGH;
+    newRequest[newCnt++] = LOW;
+
+    for (i = 0; i < index; i++)
+        newRequest[newCnt++] = request[i];
+
+    printf("\n----------------\n");
+    printf("CSCAN :");
+    printSeqNPerformance(newRequest, newCnt);
+    printf("----------------\n");
+    free(newRequest);
+    return;
+}
+
+// Access the disk location in LOOK
+void accessLOOK(int *request, int numRequest)
+{
+    int i, newCnt = 0, index = 0;
+    int *newRequest = malloc(numRequest * sizeof(int));
+
+    qsort(request, numRequest, sizeof(int), cmpfunc);
+
+    for (i = 0; i < numRequest; i++)
+    {
+        if (request[i] >= START)
+        {
+            index = i;
+            break;
+        }
+    }
+
+    for (i = index; i < numRequest; i++)
+        newRequest[newCnt++] = request[i];
+
+    for (i = index - 1; i >= 0; i--)
+        newRequest[newCnt++] = request[i];
+
+    printf("\n----------------\n");
+    printf("LOOK :");
+    printSeqNPerformance(newRequest, newCnt);
+    printf("----------------\n");
+    free(newRequest);
+    return;
+}
+
+// Access the disk location in CLOOK
+void accessCLOOK(int *request, int numRequest)
+{
+    int i, newCnt = 0, index = 0;
+    int *newRequest = malloc(numRequest * sizeof(int));
+
+    qsort(request, numRequest, sizeof(int), cmpfunc);
+
+    for (i = 0; i < numRequest; i++)
+    {
+        if (request[i] >= START)
+        {
+            index = i;
+            break;
+        }
+    }
+
+    for (i = index; i < numRequest; i++)
+        newRequest[newCnt++] = request[i];
+
+    for (i = 0; i < index; i++)
+        newRequest[newCnt++] = request[i];
+
+    printf("\n----------------\n");
+    printf("CLOOK :");
+    printSeqNPerformance(newRequest, newCnt);
+    printf("----------------\n");
+    free(newRequest);
+    return;
+}
+
+int main()
+{
+    int *request, numRequest, i, ans;
+
+    printf("Enter the number of disk access requests: ");
+    scanf("%d", &numRequest);
+    request = malloc(numRequest * sizeof(int));
+
+    printf("Enter the requests ranging between %d and %d\n", LOW, HIGH);
+    for (i = 0; i < numRequest; i++)
+    {
+        scanf("%d", &request[i]);
+    }
+
+    printf("\nSelect the policy:\n");
+    printf("----------------\n");
+    printf("1\t FCFS\n");
+    printf("2\t SSTF\n");
+    printf("3\t SCAN\n");
+    printf("4\t CSCAN\n");
+    printf("5\t LOOK\n");
+    printf("6\t CLOOK\n");
+    printf("----------------\n");
+    scanf("%d", &ans);
+
+    switch (ans)
+    {
+    case 1:
+        accessFCFS(request, numRequest);
+        break;
+    case 2:
+        accessSSTF(request, numRequest);
+        break;
+    case 3:
+        accessSCAN(request, numRequest);
+        break;
+    case 4:
+        accessCSCAN(request, numRequest);
+        break;
+    case 5:
+        accessLOOK(request, numRequest);
+        break;
+    case 6:
+        accessCLOOK(request, numRequest);
+        break;
+    default:
+        printf("Invalid choice!\n");
+        break;
+    }
+
+    free(request);
+    return 0;
+}
