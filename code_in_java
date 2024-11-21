@@ -1,0 +1,81 @@
+import java.util.*;
+
+public class DiskScheduling {
+    static final int LOW = 0;
+    static final int HIGH = 199;
+    static final int START = 53;
+
+    static void printSeqNPerformance(List<Integer> sequence) {
+        int last = START, total = 0;
+        System.out.print(START);
+        for (int req : sequence) {
+            System.out.print(" -> " + req);
+            total += Math.abs(last - req);
+            last = req;
+        }
+        System.out.println("\nPerformance: " + total);
+    }
+
+    static void accessFCFS(List<Integer> requests) {
+        System.out.println("\n----------------\nFCFS:");
+        printSeqNPerformance(requests);
+        System.out.println("----------------");
+    }
+
+    static void accessSSTF(List<Integer> requests) {
+        List<Integer> sequence = new ArrayList<>();
+        int current = START;
+        while (!requests.isEmpty()) {
+            int closest = requests.stream()
+                    .min(Comparator.comparingInt(r -> Math.abs(r - current)))
+                    .orElseThrow();
+            sequence.add(closest);
+            current = closest;
+            requests.remove((Integer) closest);
+        }
+        System.out.println("\n----------------\nSSTF:");
+        printSeqNPerformance(sequence);
+        System.out.println("----------------");
+    }
+
+    static void accessSCAN(List<Integer> requests) {
+        requests.add(START);
+        requests.add(LOW);
+        requests.add(HIGH);
+        Collections.sort(requests);
+        List<Integer> sequence = new ArrayList<>();
+        int idx = requests.indexOf(START);
+        sequence.addAll(requests.subList(0, idx + 1));
+        sequence.addAll(requests.subList(idx + 1, requests.size()));
+        System.out.println("\n----------------\nSCAN:");
+        printSeqNPerformance(sequence);
+        System.out.println("----------------");
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter the number of disk access requests: ");
+        int numRequest = sc.nextInt();
+
+        List<Integer> requests = new ArrayList<>();
+        System.out.println("Enter the requests (between " + LOW + " and " + HIGH + "):");
+        for (int i = 0; i < numRequest; i++) {
+            requests.add(sc.nextInt());
+        }
+
+        System.out.println("\nSelect the policy:");
+        System.out.println("1. FCFS");
+        System.out.println("2. SSTF");
+        System.out.println("3. SCAN");
+        int policy = sc.nextInt();
+
+        switch (policy) {
+            case 1 -> accessFCFS(requests);
+            case 2 -> accessSSTF(requests);
+            case 3 -> accessSCAN(requests);
+            default -> System.out.println("Invalid policy!");
+        }
+
+        sc.close();
+    }
+}
