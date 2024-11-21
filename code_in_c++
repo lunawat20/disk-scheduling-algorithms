@@ -1,0 +1,100 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cmath>
+using namespace std;
+
+#define LOW 0
+#define HIGH 199
+#define START 53
+
+// Helper to print sequence and performance
+void printSeqNPerformance(const vector<int>& requests) {
+    int last = START, total = 0;
+    cout << START;
+    for (int request : requests) {
+        cout << " -> " << request;
+        total += abs(last - request);
+        last = request;
+    }
+    cout << "\nPerformance: " << total << endl;
+}
+
+// FCFS
+void accessFCFS(const vector<int>& requests) {
+    cout << "\n----------------\nFCFS:\n";
+    printSeqNPerformance(requests);
+    cout << "----------------\n";
+}
+
+// SSTF
+void accessSSTF(vector<int> requests) {
+    vector<int> sequence;
+    int current = START;
+    while (!requests.empty()) {
+        auto closest = min_element(requests.begin(), requests.end(), 
+            [current](int a, int b) { return abs(a - current) < abs(b - current); });
+        sequence.push_back(*closest);
+        current = *closest;
+        requests.erase(closest);
+    }
+    cout << "\n----------------\nSSTF:\n";
+    printSeqNPerformance(sequence);
+    cout << "----------------\n";
+}
+
+// SCAN
+void accessSCAN(vector<int> requests) {
+    requests.push_back(START);
+    requests.push_back(LOW);
+    requests.push_back(HIGH);
+    sort(requests.begin(), requests.end());
+    auto startPos = find(requests.begin(), requests.end(), START);
+    vector<int> sequence(requests.begin(), startPos + 1);
+    for (auto it = startPos + 1; it != requests.end(); ++it)
+        sequence.push_back(*it);
+    cout << "\n----------------\nSCAN:\n";
+    printSeqNPerformance(sequence);
+    cout << "----------------\n";
+}
+
+// CSCAN
+void accessCSCAN(vector<int> requests) {
+    requests.push_back(START);
+    requests.push_back(LOW);
+    requests.push_back(HIGH);
+    sort(requests.begin(), requests.end());
+    auto startPos = find(requests.begin(), requests.end(), START);
+    vector<int> sequence(startPos, requests.end());
+    for (auto it = requests.begin(); it != startPos; ++it)
+        sequence.push_back(*it);
+    cout << "\n----------------\nCSCAN:\n";
+    printSeqNPerformance(sequence);
+    cout << "----------------\n";
+}
+
+int main() {
+    int numRequest;
+    cout << "Enter the number of disk access requests: ";
+    cin >> numRequest;
+
+    vector<int> requests(numRequest);
+    cout << "Enter the requests (between " << LOW << " and " << HIGH << "):\n";
+    for (int i = 0; i < numRequest; ++i)
+        cin >> requests[i];
+
+    int policy;
+    cout << "\nSelect the policy:\n";
+    cout << "1. FCFS\n2. SSTF\n3. SCAN\n4. CSCAN\n";
+    cin >> policy;
+
+    switch (policy) {
+        case 1: accessFCFS(requests); break;
+        case 2: accessSSTF(requests); break;
+        case 3: accessSCAN(requests); break;
+        case 4: accessCSCAN(requests); break;
+        default: cout << "Invalid policy!" << endl;
+    }
+
+    return 0;
+}
