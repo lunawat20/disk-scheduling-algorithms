@@ -37,7 +37,7 @@ Each implementation uses the same logic to ensure comparability.
 ## Usage
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/disk-scheduling-algorithms.git
+   git clone https://github.com/lunawat20/disk-scheduling-algorithms.git
    cd disk-scheduling-algorithms
    ```
 2. Navigate to the folder corresponding to your preferred programming language.
